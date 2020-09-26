@@ -18,3 +18,4 @@ $router->get('/', function () use ($router) {
 });
 
 $router->post('/sync', 'SyncController@sync');
+$router->post('/inbox', 'InboxController@getAllEmails');

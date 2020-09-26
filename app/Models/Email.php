@@ -26,4 +26,13 @@ class Email extends Model
     {
         return self::insert($emails);
     }
+
+    /**
+     * 
+     * 
+     */
+    public function getAllEmails()
+    {
+        return self::where('deleted_at', null)->latest()->paginate('3');
+    }
 }

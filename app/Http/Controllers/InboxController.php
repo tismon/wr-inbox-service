@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use App\Models\Email;
+use App\Models\UserActivity;
 
 class InboxController extends Controller
 {
@@ -45,8 +46,18 @@ class InboxController extends Controller
      * 
      * 
      */
-    public function getAllEmails()
+    public function getAllEmails(Request $request)
     {
+        if( isset($request->search) )
+        {
+            (new UserActivity())->saveUserActivity([
+                'activity_type' => 'search', 
+                'activity'      => $request->search, 
+                'created_at'    => date('Y-m-d H:i:s'), 
+                'updated_at'    => date('Y-m-d H:i:s')
+            ]);
+        }
+
         return response()->json([
             'success'   => $this->success,
             'message'   => 'Emails successfully retrieved',

@@ -30,6 +30,23 @@ class InboxController extends Controller
     private $message;
 
     /**
+     * 
+     */
+    private $host;
+
+    /**
+     * 
+     * 
+     */
+    private $username;
+
+    /**
+     * 
+     * 
+     */
+    private $password;
+
+    /**
      * Create a new controller instance.
      *
      * @return void
@@ -40,6 +57,10 @@ class InboxController extends Controller
         $this->code     = Response::HTTP_OK;
         $this->success  = true;
         $this->message  = '';
+
+        $this->host     = config('email.hostname');
+        $this->username = config('email.username');
+        $this->password = config('email.password');
     }
 
     /**
@@ -61,7 +82,32 @@ class InboxController extends Controller
         return response()->json([
             'success'   => $this->success,
             'message'   => 'Emails successfully retrieved',
-            'data'      => (new Email())->getAllEmails()
+            'data'      => (new Email())->getAllEmails($request)
+        ], $this->code);
+    }
+
+    /**
+     * 
+     * 
+     */
+    public function deleteEmail(Request $request)
+    {
+        if( isset($request->uid) )
+        {
+            $inbox                  = imap_open($this->host,$this->username,$this->password);
+            $deleted_from_server    = imap_delete($inbox, $request->uid, FT_UID);
+            $deleted_from_database  = (new Email())->deleteEmail($request);
+            
+            if( !$deleted_from_server ||  !$deleted_from_database )
+            {
+                $this->success = false;
+            }
+        }
+
+        return response()->json([
+            'success'   => $this->success,
+            'message'   => ($this->success) ? 'Emails successfully deleted' : 'Failed to delete email',
+            'data'      => $this->data
         ], $this->code);
     }
 }
